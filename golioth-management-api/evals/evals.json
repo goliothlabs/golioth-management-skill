@@ -1,0 +1,305 @@
+{
+  "skill_name": "golioth-management-api",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I want to build a web dashboard that shows telemetry data from my Golioth device fleet – charts and graphs of sensor readings, a group overview, and a drilldown view for individual devices. How should I approach this with the Golioth API?",
+      "expected_output": "Architectural guidance covering: backend-proxied API (not direct browser calls), polling strategy for live data, relevant endpoints (stream, devices, LightDB), and high-level dashboard structure",
+      "files": [],
+      "assertions": [
+        {
+          "id": "cors-browser-blocked",
+          "text": "States that direct browser calls to the Golioth API are blocked (CORS policy or security reason)"
+        },
+        {
+          "id": "backend-proxy",
+          "text": "Recommends a backend proxy / server-side architecture to hold the API key and proxy requests"
+        },
+        {
+          "id": "polling-not-websocket",
+          "text": "Recommends polling for live data and does NOT recommend WebSockets as a viable option (they are deprecated)"
+        },
+        {
+          "id": "stream-endpoint",
+          "text": "References the stream endpoint as the source for time-series / chart data"
+        },
+        {
+          "id": "devices-endpoint",
+          "text": "References the devices list endpoint for the fleet/group overview"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I need a fleet management UI for a large number of devices – mainly for ops teams to see device health at a glance, spot which devices are having issues, and organize them into logical groups. What does the Golioth API give me to build something like this?",
+      "expected_output": "Overview of relevant Golioth API capabilities: device listing/filtering, status/health signals, tags or blueprints for grouping, cohorts, and pagination for large fleets",
+      "files": [],
+      "assertions": [
+        {
+          "id": "pagination",
+          "text": "Mentions pagination (perPage/page params or 100-item limit) for handling large device counts"
+        },
+        {
+          "id": "grouping-tags-or-blueprints",
+          "text": "Mentions tags and/or blueprints as a device grouping mechanism"
+        },
+        {
+          "id": "cohorts-mentioned",
+          "text": "Mentions cohorts as a named grouping construct"
+        },
+        {
+          "id": "devices-list-endpoint",
+          "text": "References the devices list endpoint (GET /devices or similar)"
+        },
+        {
+          "id": "polling-not-websocket",
+          "text": "Recommends polling for live updates and does NOT present WebSockets as a viable option"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I've compiled new firmware for my nrf9160 devices. How do I get it deployed to a specific group of them via Golioth?",
+      "expected_output": "Step-by-step OTA workflow: upload artifact, identify or create a cohort, create a deployment linking cohort to artifact/package version",
+      "files": [],
+      "assertions": [
+        {
+          "id": "artifact-upload",
+          "text": "Covers uploading the firmware binary as an artifact"
+        },
+        {
+          "id": "cohort-targeting",
+          "text": "Uses cohorts (not tags or releases) as the device targeting mechanism"
+        },
+        {
+          "id": "deployment-creation",
+          "text": "Covers creating a deployment that links the cohort to the artifact/package"
+        },
+        {
+          "id": "package-mentioned",
+          "text": "Mentions package name as a required component of the OTA flow"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "How do I query the last hour of temperature data from a specific device?",
+      "expected_output": "Concrete API call to the stream endpoint with time range parameters and device filter, including curl example or equivalent",
+      "files": [],
+      "assertions": [
+        {
+          "id": "stream-endpoint",
+          "text": "References the stream endpoint (not LightDB State) as the source for time-series data"
+        },
+        {
+          "id": "time-range-params",
+          "text": "Includes start and/or end time range parameters (RFC3339 or equivalent)"
+        },
+        {
+          "id": "device-filter",
+          "text": "Shows how to filter by a specific device (device ID in the path or as a query param)"
+        },
+        {
+          "id": "concrete-example",
+          "text": "Provides a concrete curl command or code example (not just a description)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I have a group of devices deployed in Pittsburgh PA, they're part of cohort 42. Can you show me all the settings available for those devices, then turn on the LEDs?",
+      "expected_output": "How to list project and device-level settings, then how to update a specific setting (LED toggle) either at project level or per-device, noting that settings are pushed to devices",
+      "files": [],
+      "assertions": [
+        {
+          "id": "project-level-settings",
+          "text": "Explains how to list project-level settings (the defaults that apply to all devices)"
+        },
+        {
+          "id": "device-level-settings",
+          "text": "Explains device-level settings overrides (per-device endpoint)"
+        },
+        {
+          "id": "settings-update",
+          "text": "Explains how to write/update a setting value (PUT or PATCH to settings endpoint)"
+        },
+        {
+          "id": "cohort-not-settings-scope",
+          "text": "Clarifies that cohort membership does not define a settings scope — settings are project or device scoped, not cohort scoped"
+        }
+      ]
+    }
+    ,
+    {
+      "id": 5,
+      "prompt": "I'm writing a Node.js backend service that needs to fetch the last hour of temperature readings from a specific Golioth device and return them as JSON to my frontend. How do I do this?",
+      "expected_output": "Node.js/TypeScript code using fetch or axios to query the stream endpoint with RFC3339 time range params, using process.env for the API key, with async/await and error handling",
+      "files": [],
+      "assertions": [
+        {
+          "id": "nodejs-not-curl",
+          "text": "Provides Node.js or TypeScript code (fetch, axios, or equivalent) — not just a curl command"
+        },
+        {
+          "id": "async-await",
+          "text": "Uses async/await (or Promises) for the HTTP call"
+        },
+        {
+          "id": "env-var-api-key",
+          "text": "Reads the API key from an environment variable (process.env or equivalent) — does not hardcode it"
+        },
+        {
+          "id": "stream-endpoint-with-time-range",
+          "text": "Calls the stream endpoint with start/end time range parameters covering roughly the last hour"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I'm writing a TypeScript script to automate pushing new firmware to our production devices via Golioth. Can you show me the full OTA flow — uploading the binary, setting up the cohort, and creating the deployment?",
+      "expected_output": "TypeScript code covering: multipart artifact upload, cohort creation or lookup, deployment creation linking cohort/package/artifact — with types and async/await",
+      "files": [],
+      "assertions": [
+        {
+          "id": "typescript-types",
+          "text": "Uses TypeScript — includes type annotations, interfaces, or typed responses (not plain JavaScript)"
+        },
+        {
+          "id": "multipart-artifact-upload",
+          "text": "Shows artifact upload using multipart/form-data (FormData, form-data package, or equivalent) — not a JSON body"
+        },
+        {
+          "id": "cohort-as-target",
+          "text": "Uses cohorts (not tags) as the device targeting mechanism for the deployment"
+        },
+        {
+          "id": "deployment-links-cohort-package-artifact",
+          "text": "Creates a deployment that links cohortId, packageId, and artifactId together"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I'm building a Next.js dashboard to monitor my Golioth device fleet. Can I call the Golioth API directly from my React components, or do I need to do something different?",
+      "expected_output": "Clear explanation that browser/React component calls are blocked (CORS + key security), recommendation to use Next.js API routes or server components as the correct pattern, with a brief example",
+      "files": [],
+      "assertions": [
+        {
+          "id": "browser-calls-blocked",
+          "text": "States that calling the Golioth API directly from React components or browser code is not possible or not safe (CORS policy and/or API key exposure)"
+        },
+        {
+          "id": "api-routes-recommended",
+          "text": "Recommends Next.js API routes (or server components / server actions) as the correct place to call the Golioth API"
+        },
+        {
+          "id": "api-key-server-side",
+          "text": "Explains that the API key must stay server-side and never be exposed to the browser"
+        },
+        {
+          "id": "concrete-nextjs-example",
+          "text": "Provides a concrete Next.js API route or server component example (not just a description)"
+        }
+      ]
+    }
+    ,
+    {
+      "id": 8,
+      "prompt": "I want to use the Golioth REST API to create a pipeline that forwards all my sensor data to a webhook endpoint. I also want to be able to turn the pipeline on and off programmatically without deleting it. How do I do this?",
+      "expected_output": "Explanation that pipeline config is YAML base64-encoded into the pipeline field, a working curl or code example creating the pipeline, and a separate example toggling enabled true/false",
+      "files": [],
+      "assertions": [
+        {
+          "id": "pipeline-yaml-base64",
+          "text": "States that the pipeline configuration is YAML that must be base64-encoded before sending — not raw YAML or a JSON object"
+        },
+        {
+          "id": "pipeline-field-in-body",
+          "text": "Shows the JSON request body with a 'pipeline' field containing the encoded value, plus 'name' and 'enabled' fields"
+        },
+        {
+          "id": "webhook-destination-yaml",
+          "text": "Provides a pipeline YAML example with a webhook destination including a url parameter"
+        },
+        {
+          "id": "enable-disable-toggle",
+          "text": "Shows how to enable/disable the pipeline (PUT with enabled: true/false) without deleting it"
+        }
+      ]
+    }
+    ,
+    {
+      "id": 9,
+      "prompt": "I updated my Zephyr firmware to send CBOR instead of JSON to save bandwidth. Now my webhook stopped receiving data — the pipeline exists but nothing is coming through. How do I fix this?",
+      "expected_output": "Diagnosis that CBOR data needs a cbor-to-json transformer step in the pipeline before the webhook destination, updated pipeline YAML showing the two-step pattern, how to update the pipeline via the API (base64-encode + PUT), and mention of the pipeline errors endpoint for verification",
+      "files": [],
+      "assertions": [
+        {
+          "id": "cbor-to-json-transformer",
+          "text": "Identifies the fix: add a cbor-to-json transformer step in the pipeline before the webhook destination"
+        },
+        {
+          "id": "updated-pipeline-yaml",
+          "text": "Shows updated pipeline YAML with cbor-to-json transformer step followed by the webhook destination step"
+        },
+        {
+          "id": "base64-encode-to-update",
+          "text": "Explains that the updated pipeline YAML must be base64-encoded when sending the PUT request to update the pipeline"
+        },
+        {
+          "id": "errors-endpoint-for-diagnosis",
+          "text": "Mentions the pipeline errors endpoint (/pipelines/errors or /pipelines/{id}/errors) as a way to diagnose delivery failures"
+        }
+      ]
+    }
+    ,
+    {
+      "id": 10,
+      "prompt": "I want to do a staged firmware rollout: first deploy to a small test cohort, monitor it, then push to a larger beta cohort, and finally roll out to the rest of the fleet. How do I do this with the Golioth API, and how do I monitor progress at each stage before moving on?",
+      "expected_output": "Step-by-step staged rollout: upload artifact once, deploy same artifact to each cohort in sequence, monitor via OTA events (currentVersion/targetVersion/eventType), check deviceCount vs completed events to know when a stage is done, then promote to next cohort",
+      "files": [],
+      "assertions": [
+        {
+          "id": "single-artifact-multiple-cohorts",
+          "text": "Explains that the same artifact is deployed to each cohort in sequence — upload once, deploy multiple times to different cohorts"
+        },
+        {
+          "id": "ota-events-for-monitoring",
+          "text": "Uses the OTA events endpoint to monitor rollout progress, referencing currentVersion, targetVersion, or eventType fields"
+        },
+        {
+          "id": "completion-check-before-promote",
+          "text": "Describes how to determine when a stage is complete before promoting to the next cohort (e.g. comparing completed device count to cohort deviceCount, or checking all devices reach completed/success state)"
+        },
+        {
+          "id": "sequential-cohort-deployments",
+          "text": "Shows or describes creating a deployment for each cohort in sequence: test → beta → production (or equivalent naming)"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "I want to build a dashboard that shows the current firmware version running on each device in my fleet and highlights which ones are out of date or still updating. What Golioth API endpoints and data should I use?",
+      "expected_output": "Guidance on using OTA events (currentVersion/targetVersion per device) and/or device metadata.update for per-device firmware state, list cohorts for fleet grouping, poll strategy for live updates",
+      "files": [],
+      "assertions": [
+        {
+          "id": "per-device-version-source",
+          "text": "Identifies OTA events (currentVersion/targetVersion fields) and/or device metadata.update as the source of per-device firmware version information"
+        },
+        {
+          "id": "out-of-date-detection",
+          "text": "Explains how to detect out-of-date devices — e.g. comparing currentVersion to targetVersion in OTA events, or comparing against the cohort's active deployment version"
+        },
+        {
+          "id": "polling-for-live-updates",
+          "text": "Recommends polling (not WebSockets, which are deprecated) for keeping the dashboard live"
+        },
+        {
+          "id": "cohort-grouping-for-fleet-view",
+          "text": "References cohorts (with deviceCount and activeDeploymentId) as a way to organize the fleet view by deployment group"
+        }
+      ]
+    }
+  ]
+}
