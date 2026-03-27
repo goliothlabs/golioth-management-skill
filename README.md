@@ -14,7 +14,7 @@ Then start a new Claude Code session and describe what you're building.
 
 ## What it does
 
-**Corrects hallucinations.** The Golioth Management API has a few sharp edges that LLMs consistently get wrong without guidance — fabricated "releases" entities, pipelines that silently fail because the YAML isn't base64-encoded, and WebSocket recommendations for a polling-only API. The skill prevents all of these.
+**Grounded in the real API.** General-purpose LLMs tend to hallucinate details about the Golioth Management API — fabricating "releases" entities that don't exist, forgetting that pipeline YAML must be base64-encoded, or recommending WebSockets when the API uses polling. This skill is built from the actual OpenAPI spec and catches those mistakes before they become bugs.
 
 **OTA rollouts and monitoring.** Covers the full entity model (artifact → package → deployment → cohort → device) and the staged rollout pattern: upload once, deploy the same artifact to a test cohort, then beta, then production, with monitoring at each gate using the OTA events endpoint.
 
